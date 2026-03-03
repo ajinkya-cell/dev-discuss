@@ -13,7 +13,7 @@ const schema = z.object({
 
 export async function POST(req : Request){
     try {
-        const body = req.json()
+        const body =await req.json()
         const data = schema.parse(body)
 
         const result = await db
@@ -45,7 +45,8 @@ export async function POST(req : Request){
         process.env.JWT_SECRET!,
         {expiresIn : "7d"}
       )
-
+      
+      console.log("JWT TOKEN:", token);
       const response = NextResponse.json({
         message : "Login succressfull "
       },{
@@ -59,7 +60,8 @@ export async function POST(req : Request){
     });
 
     return response;
-    } catch (error) {
-        
+    } catch (error:any) {
+        console.log(error.code)
+        console.log(error.cause)
     }
 }

@@ -19,7 +19,7 @@ export async function POST(req : Request){
         const [user] = await db.insert(users).values({
             name : data.name,
             email : data.email,
-            password : data.password
+            password :hashed
         }).returning();
 
         return NextResponse.json({
@@ -28,11 +28,16 @@ export async function POST(req : Request){
             email:user.email,
         })
     } catch (error : any ) {
-        return NextResponse.json(
-            {error : error.message} , 
-            {
-                status : 401
-            }
-        )
+    if (error?.cause?.code === "23505") {
+    return NextResponse.json(
+      { error: "Email already registered" },
+      { status: 400 }
+    );
+  }
+    return NextResponse.json(
+    { error: "Internal server error" },
+    { status: 500 }
+  );
+        
     }
 }

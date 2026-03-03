@@ -8,6 +8,13 @@
       "when": 1772464354141,
       "tag": "0000_dusty_sprite",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772482176735,
+      "tag": "0001_confused_dragon_man",
+      "breakpoints": true
     }
   ]
 }
