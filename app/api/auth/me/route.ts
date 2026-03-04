@@ -31,7 +31,7 @@ export async function GET() {
   } catch (error) {
     return NextResponse.json(
       { error: "Invalid or expired token" },
-      { status: 401 }
+      { status: 403 }
     );
   }
 }
