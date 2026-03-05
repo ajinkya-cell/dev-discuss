@@ -15,6 +15,13 @@
       "when": 1772482176735,
       "tag": "0001_confused_dragon_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772734417834,
+      "tag": "0002_closed_luckman",
+      "breakpoints": true
     }
   ]
 }
