@@ -22,6 +22,34 @@
       "when": 1772734417834,
       "tag": "0002_closed_luckman",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772787977173,
+      "tag": "0003_youthful_gauntlet",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1772793177209,
+      "tag": "0004_bright_viper",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1772815568684,
+      "tag": "0005_high_misty_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1772816125502,
+      "tag": "0006_steep_natasha_romanoff",
+      "breakpoints": true
     }
   ]
 }
