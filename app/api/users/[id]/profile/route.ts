@@ -3,15 +3,27 @@ import { follows } from "@/db/schema/follows"
 import { problems } from "@/db/schema/problems"
 import { solutions } from "@/db/schema/solutions"
 import { users } from "@/db/schema/users"
-import { count, eq } from "drizzle-orm"
+import { count, eq, and } from "drizzle-orm"
 import { NextResponse } from "next/server"
+
+import { cookies } from "next/headers"
+import jwt from "jsonwebtoken"
 
 export async function GET(
     req : Request,
     context : {params : Promise<{id :string}>}
 ){
     try {
-        const {id} = await context.params
+        let {id} = await context.params
+
+        if (id === "me") {
+            const cookieStore = await cookies()
+            const token = cookieStore.get("token")?.value
+            if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+            const decoded: any = jwt.verify(token, process.env.JWT_SECRET!)
+            id = decoded.id
+        }
+
 
         const user = await db
          .select({
@@ -48,6 +60,28 @@ export async function GET(
       .from(follows)
       .where(eq(follows.followerId, id));
 
+     let isFollowing = false;
+     let isOwnProfile = false;
+     try {
+       const cookieStore = await cookies();
+       const token = cookieStore.get("token")?.value;
+       if (token) {
+         const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+         const currentUserId = decoded.id;
+         isOwnProfile = currentUserId === id;
+         
+         if (!isOwnProfile) {
+           const existingFollow = await db
+             .select()
+             .from(follows)
+             .where(
+               and(eq(follows.followerId, currentUserId), eq(follows.followingId, id))
+             );
+           if (existingFollow.length > 0) isFollowing = true;
+         }
+       }
+     } catch (e) {}
+
     return NextResponse.json({
         user : user[0],
         stats : {
@@ -55,7 +89,9 @@ export async function GET(
             solutions : solutionCount[0].value,
             followers : followerCount[0].value,
             following : followingCount[0].value
-        }
+        },
+        isFollowing,
+        isOwnProfile
     })  
     } catch (error) {
        console.error(error)

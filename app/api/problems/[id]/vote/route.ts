@@ -2,8 +2,49 @@ import { db } from "@/db";
 import { problems } from "@/db/schema/problems";
 import { problemVotes } from "@/db/schema/problemVotes";
 import { getUserFromToken } from "@/lib/getUserFromToken";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+
+export async function GET(
+    req: Request,
+    context: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await context.params;
+
+        // Get total vote count
+        const [voteResult] = await db
+            .select({ value: count() })
+            .from(problemVotes)
+            .where(eq(problemVotes.problemId, id));
+
+        const totalVotes = voteResult?.value || 0;
+
+        // Check if current user has voted
+        let hasVoted = false;
+        const userId = await getUserFromToken();
+        if (userId) {
+            const existing = await db
+                .select()
+                .from(problemVotes)
+                .where(
+                    and(
+                        eq(problemVotes.problemId, id),
+                        eq(problemVotes.userId, userId)
+                    )
+                );
+            hasVoted = existing.length > 0;
+        }
+
+        return NextResponse.json({ votes: totalVotes, hasVoted });
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json(
+            { error: "Failed to fetch votes" },
+            { status: 500 }
+        );
+    }
+}
 
 export async function POST(
     req : Request , 
@@ -50,8 +91,17 @@ export async function POST(
                 eq(problemVotes.userId , userId)
             )
          );
+
+         // Get updated count
+         const [voteResult] = await db
+             .select({ value: count() })
+             .from(problemVotes)
+             .where(eq(problemVotes.problemId, id));
+
          return NextResponse.json({
-            message : "vote removed"
+            message : "vote removed",
+            votes: voteResult?.value || 0,
+            hasVoted: false
          })
        }
 
@@ -60,8 +110,16 @@ export async function POST(
         problemId:id
        })
 
+       // Get updated count
+       const [voteResult] = await db
+           .select({ value: count() })
+           .from(problemVotes)
+           .where(eq(problemVotes.problemId, id));
+
        return NextResponse.json({
-        message:"Vote added"
+        message:"Vote added",
+        votes: voteResult?.value || 0,
+        hasVoted: true
        })
     }catch(error){
         console.error(error);
