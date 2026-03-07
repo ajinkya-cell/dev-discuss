@@ -4,6 +4,9 @@ import { getUserFromToken } from "@/lib/getUserFromToken";
 import { updateProblemSchema } from "@/lib/validators/problem.schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { solutions } from "@/db/schema/solutions";
+import { problemVotes } from "@/db/schema/problemVotes";
+import { solutionVotes } from "@/db/schema/solutionVotes";
 
 export async function GET( req : Request , 
     context: { params: Promise<{ id: string }> }
@@ -117,6 +120,14 @@ export async function DELETE(
         })
     }
 
+    const problemSols = await db.select().from(solutions).where(eq(solutions.problemId, id));
+    for (const sol of problemSols) {
+        await db.delete(solutionVotes).where(eq(solutionVotes.solutionId, sol.id));
+    }
+    
+    await db.delete(problemVotes).where(eq(problemVotes.problemId, id));
+    await db.delete(solutions).where(eq(solutions.problemId, id));
+
     await db
     .delete(problems)
     .where(eq(problems.id , id));
@@ -125,12 +136,11 @@ export async function DELETE(
         message : "Problem deleted successfully"
     })
 
-
-    } catch (error) {
+    } catch (error: any) {
         return NextResponse.json({
-            error : " so we failed while deleting the prolem"
+            error : "Failed while deleting the problem: " + (error.message || String(error))
         },{
-            status :406
+            status : 500
         })
     }
 }

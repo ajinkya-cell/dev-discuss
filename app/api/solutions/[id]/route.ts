@@ -4,6 +4,7 @@ import { getUserFromToken } from "@/lib/getUserFromToken";
 import { updateSolutionSchema } from "@/lib/validators/solution.schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { solutionVotes } from "@/db/schema/solutionVotes";
 
 export async function PATCH(
     req : Request ,
@@ -93,6 +94,8 @@ export async function DELETE(
             }
         )
      } 
+
+     await db.delete(solutionVotes).where(eq(solutionVotes.solutionId, id));
 
      await db
      .delete(solutions)

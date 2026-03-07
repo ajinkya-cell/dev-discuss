@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Trash2 } from "lucide-react";
 import { VoteButtons } from "./VoteButtons";
 
 interface Solution {
@@ -11,7 +11,13 @@ interface Solution {
   createdAt: string;
 }
 
-export function SolutionCard({ solution }: { solution: Solution }) {
+interface SolutionCardProps {
+  solution: Solution;
+  showDelete?: boolean;
+  onDelete?: () => void;
+}
+
+export function SolutionCard({ solution, showDelete, onDelete }: SolutionCardProps) {
   return (
     <div className={`p-6 rounded-xl border relative overflow-hidden transition-all ${solution.isAccepted ? 'bg-secondary/5 border-secondary/20' : 'bg-white/[0.02] border-white/5 hover:border-white/10'}`}>
       {solution.isAccepted && (
@@ -36,6 +42,14 @@ export function SolutionCard({ solution }: { solution: Solution }) {
               <span className="text-[10px] text-secondary bg-secondary/10 px-2 py-0.5 rounded uppercase font-bold tracking-widest border border-secondary/20">
                 Accepted Answer
               </span>
+            )}
+            {showDelete && onDelete && (
+              <button
+                onClick={onDelete}
+                className="ml-auto flex items-center gap-1.5 text-red-400 hover:text-red-300 transition-colors cursor-pointer text-xs font-medium"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> Delete
+              </button>
             )}
           </div>
           

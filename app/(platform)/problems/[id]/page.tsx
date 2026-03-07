@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { TagBadge } from "@/components/TagBadge";
 import { VoteButtons } from "@/components/VoteButtons";
 import { SolutionCard } from "@/components/SolutionCard";
-import { MessageSquare, Clock, Edit, Loader2 } from "lucide-react";
-import { useParams } from "next/navigation";
+import { MessageSquare, Clock, Edit, Loader2, Trash2 } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
 // Helper: fetch user name by ID, with caching
@@ -26,12 +26,14 @@ async function fetchAuthorName(authorId: string): Promise<string> {
 
 export default function ProblemPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   
   const [problem, setProblem] = useState<any>(null);
   const [solutions, setSolutions] = useState<any[]>([]);
   const [authorName, setAuthorName] = useState("...");
   const [isLoading, setIsLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
 
   // Solution state
@@ -59,6 +61,13 @@ export default function ProblemPage() {
   useEffect(() => {
     async function fetchData() {
       try {
+        // Fetch current user ID
+        const meRes = await fetch(`/api/auth/me`);
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          setCurrentUserId(meData.userId || null);
+        }
+
         const [probRes, solRes] = await Promise.all([
           fetch(`/api/problems/${id}`),
           fetch(`/api/problems/${id}/solutions`)
@@ -163,6 +172,40 @@ export default function ProblemPage() {
     }
   };
 
+  const handleDeleteProblem = async () => {
+    if (!confirm("Are you sure you want to delete this problem? This cannot be undone.")) return;
+    try {
+      const res = await fetch(`/api/problems/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        router.push("/problems");
+      } else {
+        const errData = await res.json();
+        alert(errData.error || "Failed to delete problem");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Network error while deleting problem");
+    }
+  };
+
+  const handleDeleteSolution = async (solutionId: string) => {
+    if (!confirm("Are you sure you want to delete this solution?")) return;
+    try {
+      const res = await fetch(`/api/solutions/${solutionId}`, { method: "DELETE" });
+      if (res.ok) {
+        setSolutions((prev) => prev.filter((s) => s.id !== solutionId));
+      } else {
+        const errData = await res.json();
+        alert(errData.error || "Failed to delete solution");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Network error while deleting solution");
+    }
+  };
+
+  const isAuthor = currentUserId && problem?.authorId === currentUserId;
+
   return (
     <div className="max-w-4xl mx-auto w-full">
       <div className="flex gap-6 mb-12">
@@ -195,20 +238,30 @@ export default function ProblemPage() {
               <span className="group-hover:text-primary transition-colors">{authorName}</span>
             </Link>
             <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {new Date(problem.createdAt || Date.now()).toLocaleDateString()}</span>
-            <button
-               onClick={() => setIsEditing(!isEditing)}
-               className="flex items-center gap-1.5 ml-auto cursor-pointer hover:text-foreground transition-colors"
-            >
-              <Edit className="w-4 h-4" /> {isEditing ? "Cancel" : "Edit"}
-            </button>
-            {isEditing && (
-              <button
-                onClick={handleSaveProblem}
-                disabled={isSaving}
-                className="flex items-center gap-1.5 cursor-pointer text-primary hover:text-primary/80 transition-colors"
-               >
-                 {isSaving ? "Saving..." : "Save"}
-              </button>
+            {isAuthor && (
+              <>
+                <button
+                   onClick={() => setIsEditing(!isEditing)}
+                   className="flex items-center gap-1.5 ml-auto cursor-pointer hover:text-foreground transition-colors"
+                >
+                  <Edit className="w-4 h-4" /> {isEditing ? "Cancel" : "Edit"}
+                </button>
+                {isEditing && (
+                  <button
+                    onClick={handleSaveProblem}
+                    disabled={isSaving}
+                    className="flex items-center gap-1.5 cursor-pointer text-primary hover:text-primary/80 transition-colors"
+                   >
+                     {isSaving ? "Saving..." : "Save"}
+                  </button>
+                )}
+                <button
+                   onClick={handleDeleteProblem}
+                   className="flex items-center gap-1.5 cursor-pointer text-red-400 hover:text-red-300 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" /> Delete
+                </button>
+              </>
             )}
           </div>
           
@@ -256,7 +309,9 @@ export default function ProblemPage() {
                  author: solution.authorName || "Anonymous",
                  isAccepted: false,
                  createdAt: new Date(solution.createdAt || Date.now()).toLocaleDateString()
-               }} 
+               }}
+               showDelete={currentUserId === solution.authorId}
+               onDelete={() => handleDeleteSolution(solution.id)}
             />
           )) : (
             <div className="text-muted border border-white/5 p-8 rounded-xl text-center bg-white/[0.02]">
