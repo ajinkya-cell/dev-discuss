@@ -53,25 +53,11 @@ export default function Footer() {
             <h4 className="text-xs font-mono tracking-[0.2em] uppercase text-muted/40 mb-5">Resources</h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-sm text-muted hover:text-foreground transition-colors font-mono">
+                <a href="https://github.com/ajinkya-cell/dev-discuss" className="text-sm text-muted hover:text-foreground transition-colors font-mono">
                   Documentation
                 </a>
               </li>
-              <li>
-                <a href="#" className="text-sm text-muted hover:text-foreground transition-colors font-mono">
-                  API Reference
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-muted hover:text-foreground transition-colors font-mono">
-                  Contributing
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-muted hover:text-foreground transition-colors font-mono">
-                  Changelog
-                </a>
-              </li>
+
             </ul>
           </div>
 
@@ -79,13 +65,13 @@ export default function Footer() {
           <div>
             <h4 className="text-xs font-mono tracking-[0.2em] uppercase text-muted/40 mb-5">Connect</h4>
             <div className="flex items-center gap-3 mb-6">
-              <a href="#" className="w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-muted hover:text-foreground hover:bg-white/[0.06] hover:border-white/10 transition-all">
+              <a href="https://github.com/ajinkya-cell" className="w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-muted hover:text-foreground hover:bg-white/[0.06] hover:border-white/10 transition-all">
                 <LucideGithub className="w-4 h-4" />
               </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-muted hover:text-foreground hover:bg-white/[0.06] hover:border-white/10 transition-all">
+              <a href="https://x.com/ajinkyacell" className="w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-muted hover:text-foreground hover:bg-white/[0.06] hover:border-white/10 transition-all">
                 <Twitter className="w-4 h-4" />
               </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-muted hover:text-foreground hover:bg-white/[0.06] hover:border-white/10 transition-all">
+              <a href="mailto:ajinkyadharkar88@gmail.com" className="w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-muted hover:text-foreground hover:bg-white/[0.06] hover:border-white/10 transition-all">
                 <Mail className="w-4 h-4" />
               </a>
             </div>

@@ -158,11 +158,7 @@ export default function HeroSection() {
             transition={{ delay: 1, duration: 0.8 }}
             className="flex items-center gap-8 mt-16 font-mono text-sm text-muted/60"
           >
-            <span><span className="text-foreground font-bold">100+</span> developers</span>
-            <span className="w-1 h-1 rounded-full bg-muted/30" />
-            <span><span className="text-foreground font-bold">500+</span> discussions</span>
-            <span className="w-1 h-1 rounded-full bg-muted/30" />
-            <span><span className="text-foreground font-bold">Open</span> source</span>
+            <span>we can make it simpler</span>
           </motion.div>
         </motion.div>
       </div>
