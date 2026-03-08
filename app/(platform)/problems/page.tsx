@@ -9,14 +9,26 @@ export default function ProblemsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [showFilter, setShowFilter] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
     async function fetchProblems() {
       try {
-        const res = await fetch("/api/problems?page=1&limit=20");
+        if (page === 1) setIsLoading(true);
+        else setIsLoadingMore(true);
+
+        const res = await fetch(`/api/problems?page=${page}&limit=5`);
         if (res.ok) {
           const data = await res.json();
           const rawProblems = data.data || [];
+          
+          if (rawProblems.length < 5) {
+            setHasMore(false);
+          } else {
+            setHasMore(true);
+          }
 
           // Fetch author names for each unique authorId
           const authorIds = [...new Set(rawProblems.map((p: any) => p.authorId).filter(Boolean))] as string[];
@@ -41,16 +53,26 @@ export default function ProblemsPage() {
             authorName: authorMap[p.authorId] || "Anonymous"
           }));
 
-          setProblems(enriched);
+          if (page === 1) {
+            setProblems(enriched);
+          } else {
+            setProblems(prev => {
+              // Avoid duplicates if effect runs twice in strict mode
+              const existingIds = prev.map((p: any) => p.id);
+              const newEnriched = enriched.filter((p: any) => !existingIds.includes(p.id));
+              return [...prev, ...newEnriched];
+            });
+          }
         }
       } catch (error) {
         console.error("Failed to fetch problems");
       } finally {
         setIsLoading(false);
+        setIsLoadingMore(false);
       }
     }
     fetchProblems();
-  }, []);
+  }, [page]);
 
   return (
     <div className="max-w-4xl mx-auto w-full">
@@ -118,10 +140,14 @@ export default function ProblemsPage() {
         )}
       </div>
       
-      {!isLoading && problems.length > 0 && (
+      {!isLoading && problems.length > 0 && hasMore && (
         <div className="mt-8 flex justify-center">
-          <button className="px-6 py-2 rounded-full border border-white/10 bg-white/5 text-sm text-muted hover:text-foreground hover:bg-white/10 transition-colors cursor-not-allowed opacity-50">
-            Load More
+          <button 
+             onClick={() => setPage(p => p + 1)}
+             disabled={isLoadingMore}
+             className={`px-6 py-2 rounded-full border border-white/10 bg-white/5 text-sm text-foreground hover:bg-white/10 transition-colors ${isLoadingMore ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {isLoadingMore ? 'Loading...' : 'Load More'}
           </button>
         </div>
       )}
